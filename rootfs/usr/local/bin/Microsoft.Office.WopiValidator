@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+declare -x WOPI_URL
+[[ -z "${WOPI_URL}" ]] && WOPI_URL=""
+
+declare -x WOPI_TOKEN
+[[ -z "${WOPI_TOKEN}" ]] && WOPI_TOKEN=""
+
+declare -x WOPI_TOKEN_TTL
+[[ -z "${WOPI_TOKEN_TTL}" ]] && WOPI_TOKEN_TTL="0"
+
+declare -x WOPI_TIMEOUT
+[[ -z "${WOPI_TIMEOUT}" ]] && WOPI_TIMEOUT="3600"
+
+declare -x WOPI_WAIT
+[[ -z "${WOPI_WAIT}" ]] && WOPI_WAIT="false"
+
+declare -x WOPI_CHECK_URL
+[[ -z "${WOPI_CHECK_URL}" ]] && WOPI_CHECK_URL="${WOPI_URL}"
+
+declare -x WOPI_CHECK_STATUS
+[[ -z "${WOPI_CHECK_STATUS}" ]] && WOPI_CHECK_STATUS="200"
+
+if [[ ${WOPI_WAIT} == "true" || ${WOPI_WAIT} == "1" ]]
+then
+  echo -n "Trying to access ${WOPI_CHECK_URL} for ${WOPI_TIMEOUT} seconds..."
+  STARTED=$(date +%s)
+
+  while [ $(( $(date +%s) - ${WOPI_TIMEOUT} )) -lt $STARTED ]
+  do
+      if [[ $(curl --write-out %{http_code} --silent --output /dev/null ${WOPI_CHECK_URL}) == "${WOPI_CHECK_STATUS}" ]]
+      then
+          break
+      else
+          echo -n "."
+          sleep 1
+      fi
+  done
+
+  if [ $(( $(date +%s) - ${WOPI_TIMEOUT} )) -ge $STARTED ]
+  then
+      echo "failed!"
+      exit 1
+  fi
+
+  echo "done!"
+fi
+
+cd /wopi-validator-core
+exec dotnet src/WopiValidator/bin/Release/netcoreapp2.0/Microsoft.Office.WopiValidator.dll --token ${WOPI_TOKEN} --token_ttl ${WOPI_TOKEN_TTL} --wopisrc ${WOPI_URL}
+
