@@ -22,6 +22,10 @@ declare -x WOPI_TESTCATEGORY
 [[ -z "${WOPI_TESTCATEGORY}" ]] && WOPI_TESTCATEGORY=""
 [[ ${WOPI_TESTCATEGORY} ]] && WOPI_TESTCATEGORY="--testcategory ${WOPI_TESTCATEGORY}"
 
+declare -x WOPI_TESTCONFIG
+[[ -z "${WOPI_TESTCONFIG}" ]] && WOPI_TESTCONFIG=""
+[[ ${WOPI_TESTCONFIG} ]] && WOPI_TESTCONFIG="--config ${WOPI_TESTCONFIG}"
+
 declare -x WOPI_TIMEOUT
 [[ -z "${WOPI_TIMEOUT}" ]] && WOPI_TIMEOUT="3600"
 
@@ -60,5 +64,5 @@ then
 fi
 
 cd /wopi-validator-core
-exec dotnet src/WopiValidator/bin/Release/netcoreapp2.0/Microsoft.Office.WopiValidator.dll --token ${WOPI_TOKEN} --token_ttl ${WOPI_TOKEN_TTL} --wopisrc ${WOPI_URL} ${WOPI_TESTNAME} ${WOPI_TESTCATEGORY} ${WOPI_TESTGROUP}
+exec dotnet src/WopiValidator/bin/Release/netcoreapp2.0/Microsoft.Office.WopiValidator.dll --token ${WOPI_TOKEN} --token_ttl ${WOPI_TOKEN_TTL} --wopisrc ${WOPI_URL} ${WOPI_TESTNAME} ${WOPI_TESTCATEGORY} ${WOPI_TESTGROUP} ${WOPI_TESTCONFIG}
 
